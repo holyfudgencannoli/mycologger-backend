@@ -48,128 +48,128 @@ class User(Base):
     def get_id(self):
         return str(self.id)
     
-# class RawMaterial(Base):
-#     __tablename__= 'raw_materials'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     name = Column(String)
-#     created_at = Column(DateTime)
+class RawMaterial(Base):
+    __tablename__= 'raw_materials'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    created_at = Column(DateTime)
 
-#     item_usage_logs = relationship("TaskItemUsageLog", back_populates='item')
+    item_usage_logs = relationship("TaskItemUsageLog", back_populates='item')
 
-#     purchase_logs = relationship('RawMaterialPurchaseLog', back_populates='item')
+    purchase_logs = relationship('RawMaterialPurchaseLog', back_populates='item')
     
-#     inventory_log = relationship('RawMaterialInventoryLog', back_populates='item')
+    inventory_log = relationship('RawMaterialInventoryLog', back_populates='item')
 
-#     field_recipe_item_links = relationship("FieldRecipeItemLink", back_populates="item")
+    field_recipe_item_links = relationship("FieldRecipeItemLink", back_populates="item")
 
-#     product_recipe_item_links = relationship("ProductRecipeItemLink", back_populates="item")
+    product_recipe_item_links = relationship("ProductRecipeItemLink", back_populates="item")
 
 
-#     def to_dict(self):
-#         return{
-#             'id': self.id,
-#             'name': self.name,
-#             'created_at': self.created_at,
+    def to_dict(self):
+        return{
+            'id': self.id,
+            'name': self.name,
+            'created_at': self.created_at,
             
-#         }
+        }
     
     
-#     def get_id(self):
-#         return str(self.id)
+    def get_id(self):
+        return str(self.id)
 
-# class Vendor(Base):
-#     __tablename__ = 'vendors'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     name = Column(String)
-#     phone = Column(String)
-#     email = Column(String)
-#     website = Column(String)
+class Vendor(Base):
+    __tablename__ = 'vendors'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    phone = Column(String)
+    email = Column(String)
+    website = Column(String)
 
-#     raw_material_purchase_logs = relationship("RawMaterialPurchaseLog", back_populates='vendor')
+    raw_material_purchase_logs = relationship("RawMaterialPurchaseLog", back_populates='vendor')
 
-#     item_vendor_links = relationship('RawMaterialVendorLink', back_populates='vendor')
+    item_vendor_links = relationship('RawMaterialVendorLink', back_populates='vendor')
 
-#     specimen_vendor_links = relationship('SpecimenVendorLink', back_populates='vendor')
+    specimen_vendor_links = relationship('SpecimenVendorLink', back_populates='vendor')
 
-#     receipts = relationship('Receipt', back_populates='vendor')
+    receipts = relationship('Receipt', back_populates='vendor')
 
-#     def to_dict(self):
-#         return{
-#             'id': self.id,
-#             'name': self.name,
-#             'phone': self.phone,
-#             'email': self.email,
-#             'website': self.website  
-#         }
+    def to_dict(self):
+        return{
+            'id': self.id,
+            'name': self.name,
+            'phone': self.phone,
+            'email': self.email,
+            'website': self.website  
+        }
     
-#     def get_id(self):
-#         return str(self.id)
+    def get_id(self):
+        return str(self.id)
 
-# class RawMaterialPurchaseLog(Base):
-#     __tablename__ = 'raw_material_purchase_logs'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     log_date = Column(String)
-#     purchase_date = Column(String)
-#     purchase_amount = Column(Float)
-#     purchase_unit = Column(String)
-#     cost = Column(Float)
-#     notes = Column(String)
+class RawMaterialPurchaseLog(Base):
+    __tablename__ = 'raw_material_purchase_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    log_date = Column(String)
+    purchase_date = Column(String)
+    purchase_amount = Column(Float)
+    purchase_unit = Column(String)
+    cost = Column(Float)
+    notes = Column(String)
 
 
-#     inventory_log_id = Column(Integer, ForeignKey('raw_material_inventory_logs.id'), nullable=False)
-#     inventory_log = relationship('RawMaterialInventoryLog', back_populates='purchase_logs')
+    inventory_log_id = Column(Integer, ForeignKey('raw_material_inventory_logs.id'), nullable=False)
+    inventory_log = relationship('RawMaterialInventoryLog', back_populates='purchase_logs')
 
-#     item_id = Column(Integer, ForeignKey('raw_materials.id'), nullable=False)
-#     item = relationship('RawMaterial', back_populates='purchase_logs')
+    item_id = Column(Integer, ForeignKey('raw_materials.id'), nullable=False)
+    item = relationship('RawMaterial', back_populates='purchase_logs')
 
-#     vendor_id = Column(Integer, ForeignKey('vendors.id'), nullable=False)
-#     vendor = relationship('Vendor', back_populates='raw_material_purchase_logs')
+    vendor_id = Column(Integer, ForeignKey('vendors.id'), nullable=False)
+    vendor = relationship('Vendor', back_populates='raw_material_purchase_logs')
 
-#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-#     user = relationship('User', back_populates='raw_material_purchase_logs')
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user = relationship('User', back_populates='raw_material_purchase_logs')
 
-#     # receipt_entry
+    # receipt_entry
 
-#     def to_dict(self):
-#         return{
-#             'id': self.id,
-#             'log_date': self.log_date,
-#             'purchase_date': self.purchase_date,
-#             'purchase_amount': self.purchase_amount,
-#             'purchase_unit': self.purchase_unit,
-#             'cost': self.cost,
-#             'notes': self.notes
-#         }
+    def to_dict(self):
+        return{
+            'id': self.id,
+            'log_date': self.log_date,
+            'purchase_date': self.purchase_date,
+            'purchase_amount': self.purchase_amount,
+            'purchase_unit': self.purchase_unit,
+            'cost': self.cost,
+            'notes': self.notes
+        }
     
-#     def get_id(self):
-#         return str(self.id)
+    def get_id(self):
+        return str(self.id)
 
-# class RawMaterialInventoryLog(Base):
-#     __tablename__= 'raw_material_inventory_logs'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     amount_on_hand = Column(Float)
-#     amount_on_hand_unit = Column(String)
-#     periodic_auto_replace  = Column(Float)
-#     periodic_auto_replace_unit = Column(String)
-#     created_at = Column(DateTime)
-#     last_updated = Column(DateTime)
+class RawMaterialInventoryLog(Base):
+    __tablename__= 'raw_material_inventory_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    amount_on_hand = Column(Float)
+    amount_on_hand_unit = Column(String)
+    periodic_auto_replace  = Column(Float)
+    periodic_auto_replace_unit = Column(String)
+    created_at = Column(DateTime)
+    last_updated = Column(DateTime)
 
-#     item_id = Column(Integer, ForeignKey('raw_materials.id'), nullable=False)
-#     item = relationship('RawMaterial', back_populates='inventory_log')
+    item_id = Column(Integer, ForeignKey('raw_materials.id'), nullable=False)
+    item = relationship('RawMaterial', back_populates='inventory_log')
 
-#     def to_dict(self):
-#         return{
-#            'id': self.id,
-#            'amount_on_hand': self.amount_on_hand,
-#            'amount_on_hand_unit': self.amount_on_hand_unit,
-#            'periodic_auto_replace': self.periodic_auto_replace,
-#            'periodic_auto_replace_unit': self.periodic_auto_replace_unit,
-#            'created_at': self.created_at,
-#            'last_updated': self.last_updated
-#         }
+    def to_dict(self):
+        return{
+           'id': self.id,
+           'amount_on_hand': self.amount_on_hand,
+           'amount_on_hand_unit': self.amount_on_hand_unit,
+           'periodic_auto_replace': self.periodic_auto_replace,
+           'periodic_auto_replace_unit': self.periodic_auto_replace_unit,
+           'created_at': self.created_at,
+           'last_updated': self.last_updated
+        }
     
-#     def get_id(self):
-#         return str(self.id)
+    def get_id(self):
+        return str(self.id)
 
 # class RawMaterialUsageLog(Base):
 #     __tablename__ = 'raw_material_usage_logs'
@@ -590,32 +590,32 @@ class Task(Base):
 #     def get_id(self):
 #         return str(self.id)
 
-# class ReceiptEntry(Base):
-#     __tablename__ = "receipt_entries"
+class ReceiptEntry(Base):
+    __tablename__ = "receipt_entries"
 
-#     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-#     date = Column(DateTime)
-#     image_path = Column(String)
-#     created_at = Column(DateTime)
-#     memo = Column(String)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    date = Column(DateTime)
+    image_path = Column(String)
+    created_at = Column(DateTime)
+    memo = Column(String)
 
-#     vendor_id = Column(Integer, ForeignKey("vendors.id"))
-#     vendor = relationship("Vendor", back_populates='receipts')
+    vendor_id = Column(Integer, ForeignKey("vendors.id"))
+    vendor = relationship("Vendor", back_populates='receipts')
 
-#     user_id = Column(Integer, ForeignKey("users.id"))
-#     user = relationship("User", back_populates='receipts')
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates='receipts')
 
-#     def to_dict(self):
-#         return {
-#             "id": self.id,
-#             "date": self.date,
-#             "image_path": self.image_path,
-#             "created_at": self.created_at,
-#             "memo": self.memo,
-#             "vendor_id": self.vendor_id,
-#             "user_id": self.user_id,
-#         }
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "date": self.date,
+            "image_path": self.image_path,
+            "created_at": self.created_at,
+            "memo": self.memo,
+            "vendor_id": self.vendor_id,
+            "user_id": self.user_id,
+        }
 
-#     def get_id(self):
-#         return str(self.id)
+    def get_id(self):
+        return str(self.id)
 

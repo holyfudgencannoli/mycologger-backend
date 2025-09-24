@@ -4,6 +4,9 @@ from flask_jwt_extended import JWTManager, JWTManager
 from config import Config
 from .db import Base, engine
 from .routes import app_bp, BLACKLIST
+from .routes.users_routes import users_bp
+from .routes.authentication_routes import auth_bp
+from .routes.purchase_logs_routes import purchase_logs_bp
 
 
 def create_app():
@@ -20,11 +23,11 @@ def create_app():
         return jti in BLACKLIST
     
     app.register_blueprint(app_bp, url_prefix='/api')
-    # app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
     # app.register_blueprint(fields_bp, url_prefix='/api/fields')
     # app.register_blueprint(inventories_bp, url_prefix='/api/inventories')
     # app.register_blueprint(products_bp, url_prefix='/api/products')
-    # app.register_blueprint(purchase_logs_bp, url_prefix='/api/purchase-logs')
+    app.register_blueprint(purchase_logs_bp, url_prefix='/api/purchase-logs')
     # app.register_blueprint(raw_materials_bp, url_prefix='/api/raw-materials')
     # app.register_blueprint(specimens_bp, url_prefix='/api/specimens')
     # app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
@@ -32,6 +35,7 @@ def create_app():
     # app.register_blueprint(vendors_bp, url_prefix='/api/vendors')
     # app.register_blueprint(recipes_bp, url_prefix='/api/recipes')
     # app.register_blueprint(receipts_bp, url_prefix='/api/receipts')
+    app.register_blueprint(users_bp, url_prefix='/api/users')
 
     Base.metadata.create_all(bind=engine)
 
