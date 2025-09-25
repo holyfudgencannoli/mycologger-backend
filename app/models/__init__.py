@@ -1,8 +1,9 @@
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, Boolean, DateTime
 from datetime import datetime
+from ..db import Base
 
-Base = declarative_base()
+
 
 
 class User(Base):
@@ -23,14 +24,16 @@ class User(Base):
     # raw_material_usage_logs = relationship("RawMaterialUsageLog", back_populates='user')
     # specimen_usage_logs = relationship("SpecimenUsageLog", back_populates='user')
     
-    # raw_material_purchase_logs = relationship('RawMaterialPurchaseLog', back_populates='user')
+    raw_material_purchase_logs = relationship('RawMaterialPurchaseLog', back_populates='user')
     # specimen_purchase_logs = relationship('SpecimenPurchaseLog', back_populates='user')
 
 
     # specimen_purchase_logs = relationship('SpecimenPurchaseLog', back_populates='user')
 
-    # receipts = relationship("Receipt", back_populates='user')
+    receipts = relationship("ReceiptEntry", back_populates='user')
 
+    def __repr__(self):
+        return f"User: {self.username}; Created At: {self.created_at}; Last Login: {self.last_login}"
 
     def to_dict(self):
         return{
@@ -48,21 +51,26 @@ class User(Base):
     def get_id(self):
         return str(self.id)
     
+    def get_tasks(self):
+        return self.tasks
+    
 class RawMaterial(Base):
     __tablename__= 'raw_materials'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
+    category = Column(String)
+    subcategory = Column(String)
     created_at = Column(DateTime)
 
-    item_usage_logs = relationship("TaskItemUsageLog", back_populates='item')
+    # item_usage_logs = relationship("RawMaterialUsageLog", back_populates='item')
 
     purchase_logs = relationship('RawMaterialPurchaseLog', back_populates='item')
     
-    inventory_log = relationship('RawMaterialInventoryLog', back_populates='item')
+    inventory_log = relationship('RawMaterialInventoryLog', back_populates='item', uselist=False, cascade="all, delete-orphan")
 
-    field_recipe_item_links = relationship("FieldRecipeItemLink", back_populates="item")
+    # field_recipe_item_links = relationship("FieldRecipeItemLink", back_populates="item")
 
-    product_recipe_item_links = relationship("ProductRecipeItemLink", back_populates="item")
+    # product_recipe_item_links = relationship("ProductRecipeItemLink", back_populates="item")
 
 
     def to_dict(self):
@@ -70,12 +78,29 @@ class RawMaterial(Base):
             'id': self.id,
             'name': self.name,
             'created_at': self.created_at,
-            
+            'category': self.category,
+            'subcategory': self.subcategory,
         }
-    
     
     def get_id(self):
         return str(self.id)
+    
+    def get_item_usage_logs(self):
+        return self.item_usage_logs
+
+
+    def get_purchase_logs(self):
+        return self.purchase_logs
+
+    def get_inventory_log(self):
+        return self.inventory_log
+
+    def get_field_recipe_item_links(self):
+        return self.field_recipe_item_links
+
+    def get_product_recipe_item_links(self):
+        return self.product_recipe_item_links
+
 
 class Vendor(Base):
     __tablename__ = 'vendors'
@@ -84,14 +109,15 @@ class Vendor(Base):
     phone = Column(String)
     email = Column(String)
     website = Column(String)
+    
 
     raw_material_purchase_logs = relationship("RawMaterialPurchaseLog", back_populates='vendor')
 
-    item_vendor_links = relationship('RawMaterialVendorLink', back_populates='vendor')
+    # item_vendor_links = relationship('RawMaterialVendorLink', back_populates='vendor')
 
-    specimen_vendor_links = relationship('SpecimenVendorLink', back_populates='vendor')
+    # specimen_vendor_links = relationship('SpecimenVendorLink', back_populates='vendor')
 
-    receipts = relationship('Receipt', back_populates='vendor')
+    receipts = relationship('ReceiptEntry', back_populates='vendor')
 
     def to_dict(self):
         return{
@@ -104,10 +130,24 @@ class Vendor(Base):
     
     def get_id(self):
         return str(self.id)
+    
+    def get_raw_material_purchase_logs(self):
+        return self.raw_material_purchase_logs
+
+    def get_item_vendor_links(self):
+        return self.item_vendor_links
+
+    def get_specimen_vendor_links(self):
+        return self.specimen_vendor_links
+
+    def get_receipts(self):
+        return self.receipts
+
 
 class RawMaterialPurchaseLog(Base):
     __tablename__ = 'raw_material_purchase_logs'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    brand = Column(String)
     log_date = Column(String)
     purchase_date = Column(String)
     purchase_amount = Column(Float)
@@ -116,17 +156,17 @@ class RawMaterialPurchaseLog(Base):
     notes = Column(String)
 
 
-    inventory_log_id = Column(Integer, ForeignKey('raw_material_inventory_logs.id'), nullable=False)
-    inventory_log = relationship('RawMaterialInventoryLog', back_populates='purchase_logs')
+    inventory_log_id = Column(Integer, ForeignKey('raw_material_inventory_logs.id'))
+    inventory_log = relationship('RawMaterialInventoryLog', back_populates='purchase_logs', uselist=False)
 
     item_id = Column(Integer, ForeignKey('raw_materials.id'), nullable=False)
-    item = relationship('RawMaterial', back_populates='purchase_logs')
+    item = relationship('RawMaterial', back_populates='purchase_logs', uselist=False)
 
     vendor_id = Column(Integer, ForeignKey('vendors.id'), nullable=False)
-    vendor = relationship('Vendor', back_populates='raw_material_purchase_logs')
+    vendor = relationship('Vendor', back_populates='raw_material_purchase_logs', uselist=False)
 
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    user = relationship('User', back_populates='raw_material_purchase_logs')
+    user = relationship('User', back_populates='raw_material_purchase_logs', uselist=False)
 
     # receipt_entry
 
@@ -138,24 +178,43 @@ class RawMaterialPurchaseLog(Base):
             'purchase_amount': self.purchase_amount,
             'purchase_unit': self.purchase_unit,
             'cost': self.cost,
-            'notes': self.notes
+            'notes': self.notes,
+            'item_id': self.item_id,
+            'vendor_id': self.vendor_id,
+            'user_id': self.user_id,
+            'inventory_log_id': self.inventory_log_id
         }
     
     def get_id(self):
         return str(self.id)
+    
+    def get_inventory_log(self):
+        return self.inventory_log
+
+    def get_item(self):
+        return self.item
+
+    def get_vendor(self):
+        return self.vendor
+
+    def get_user(self):
+        return self.user
+
 
 class RawMaterialInventoryLog(Base):
     __tablename__= 'raw_material_inventory_logs'
     id = Column(Integer, primary_key=True, autoincrement=True)
     amount_on_hand = Column(Float)
-    amount_on_hand_unit = Column(String)
+    amount_on_hand_unit = Column(String)    
     periodic_auto_replace  = Column(Float)
     periodic_auto_replace_unit = Column(String)
     created_at = Column(DateTime)
     last_updated = Column(DateTime)
 
     item_id = Column(Integer, ForeignKey('raw_materials.id'), nullable=False)
-    item = relationship('RawMaterial', back_populates='inventory_log')
+    item = relationship('RawMaterial', back_populates='inventory_log', uselist=False)
+
+    purchase_logs = relationship('RawMaterialPurchaseLog', back_populates='inventory_log')
 
     def to_dict(self):
         return{
@@ -170,6 +229,9 @@ class RawMaterialInventoryLog(Base):
     
     def get_id(self):
         return str(self.id)
+    
+    def get_item(self):
+        return self.item
 
 # class RawMaterialUsageLog(Base):
 #     __tablename__ = 'raw_material_usage_logs'
@@ -379,7 +441,7 @@ class Task(Base):
     #priority = Column(Integer)
 
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    user = relationship("User", back_populates="tasks")
+    user = relationship("User", back_populates="tasks", uselist=False)
 
     # raw_material_usage_logs = relationship('RawMaterialUsageLog', back_populates='task')
     # specimen_usage_logs = relationship('SpecimenUsageLog', back_populates='task')
@@ -397,6 +459,9 @@ class Task(Base):
     
     def get_id(self):
         return str(self.id)
+    
+    def get_user(self):
+        return self.user
 
 
 # class Product(Base):
@@ -595,21 +660,23 @@ class ReceiptEntry(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     date = Column(DateTime)
-    image_path = Column(String)
+    image_url = Column(String)
+    filename = Column(String)
     created_at = Column(DateTime)
     memo = Column(String)
 
     vendor_id = Column(Integer, ForeignKey("vendors.id"))
-    vendor = relationship("Vendor", back_populates='receipts')
+    vendor = relationship("Vendor", back_populates='receipts', uselist=False)
 
     user_id = Column(Integer, ForeignKey("users.id"))
-    user = relationship("User", back_populates='receipts')
+    user = relationship("User", back_populates='receipts', uselist=False)
 
     def to_dict(self):
         return {
             "id": self.id,
             "date": self.date,
-            "image_path": self.image_path,
+            "image_url": self.image_url,
+            "filename": self.filename,
             "created_at": self.created_at,
             "memo": self.memo,
             "vendor_id": self.vendor_id,
@@ -618,4 +685,11 @@ class ReceiptEntry(Base):
 
     def get_id(self):
         return str(self.id)
+    
+    def get_vendor(self):
+        return self.vendor
+
+    def get_user(self):
+        return self.user
+
 

@@ -26,6 +26,21 @@ def create_user(username, password_hash, email, phone, is_admin):
         raise ValueError("User already exists")
     db_session.close()
 
+def get_user_by_user_id(user_id):
+    db_session = SessionLocal()
+    user = db_session.query(User).filter_by(id=user_id).first()
+    db_session.close()
+    if user:
+        # return consistent keys
+        return {
+            "id": user.id,
+            "username": user.username,
+            "password_hash": user.password_hash,
+            "is_admin": user.is_admin
+        }
+    return None
+    
+
 
 @users_bp.route("/", methods=["GET"])
 @jwt_required()
@@ -41,8 +56,7 @@ def list_users():
     return jsonify({'users': users_serialized}), 200
 
 
-@users_bp.route("/", methods=["POST"])
-@jwt_required()
+@users_bp.route("/register", methods=["POST"])
 def register_user():
     data = request.form
 
