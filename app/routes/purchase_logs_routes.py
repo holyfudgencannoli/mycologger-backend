@@ -35,7 +35,6 @@ def register_raw_material_purchase_log():
         cost = data['cost']
         notes = data['notes']
 
-        # ------------------- Vendor Handling -------------------
         vendor_name = data['vendor']
         vendor = db_session.query(Vendor).filter_by(name=vendor_name).first()
         if not vendor:
@@ -46,9 +45,8 @@ def register_raw_material_purchase_log():
                 website=data['vendorWebsite']
             )
             db_session.add(vendor)
-            db_session.flush()  # ensures vendor.id is set
+            db_session.flush() 
 
-        # ------------------- Raw Material Handling -------------------
         raw_material = db_session.query(RawMaterial).filter_by(name=name).first()
         if not raw_material:
             raw_material = RawMaterial(
@@ -67,12 +65,11 @@ def register_raw_material_purchase_log():
             db_session.add(raw_material)
             db_session.flush()
         else:
-            inventory_log = raw_material.get_inventory_log()  # type: ignore
+            inventory_log = raw_material.get_inventory_log()
             if inventory_log:
                 inventory_log.amount_on_hand = (inventory_log.amount_on_hand or 0) + inventory_quantity
                 inventory_log.last_updated = datetime.now()
 
-        # ------------------- Purchase Log -------------------
         purchase_log = RawMaterialPurchaseLog(
             brand=brand,
             log_date=datetime.now(),
@@ -89,14 +86,13 @@ def register_raw_material_purchase_log():
         db_session.add(purchase_log)
         db_session.flush()
 
-        # ------------------- Receipt Entry -------------------
         receipt = ReceiptEntry(
             date=purchase_date,
             filename=data['filename'],
             image_url=data['imageUrl'],
             created_at=datetime.now(),
             memo=data['receiptMemo'],
-            purchase_log=purchase_log,
+            raw_material_purchase_log=purchase_log,
             vendor=vendor,
             user_id=user_id
         )

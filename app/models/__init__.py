@@ -155,6 +155,9 @@ class RawMaterialPurchaseLog(Base):
     cost = Column(Float)
     notes = Column(String)
 
+    receipt_entry_id = Column(Integer, ForeignKey('receipt_entries.id'))
+    receipt_entry = relationship('ReceiptEntry', back_populates='raw_material_log', uselist=False)
+
 
     inventory_log_id = Column(Integer, ForeignKey('raw_material_inventory_logs.id'))
     inventory_log = relationship('RawMaterialInventoryLog', back_populates='purchase_logs', uselist=False)
@@ -665,6 +668,10 @@ class ReceiptEntry(Base):
     created_at = Column(DateTime)
     memo = Column(String)
 
+    raw_material_log = relationship("RawMaterialPurchaseLog", back_populates='receipt_entry')
+    # specimen_id = Column(Integer, ForeignKey("specimen_purchase_logs.id"), nullable=True)
+
+
     vendor_id = Column(Integer, ForeignKey("vendors.id"))
     vendor = relationship("Vendor", back_populates='receipts', uselist=False)
 
@@ -691,5 +698,6 @@ class ReceiptEntry(Base):
 
     def get_user(self):
         return self.user
-
-
+    
+    # def get_purchase_log(self):
+      

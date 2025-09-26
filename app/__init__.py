@@ -7,6 +7,7 @@ from .routes.authentication_routes import auth_bp, BLACKLIST
 from .routes.purchase_logs_routes import purchase_logs_bp
 from .routes.tasks_routes import tasks_bp
 from .routes.raw_materials_routes import raw_materials_bp
+from .routes.receipt_routes import receipts_bp
 from .db import Base,engine
 
 
@@ -35,7 +36,7 @@ def create_app():
     # app.register_blueprint(usage_logs_bp, url_prefix='/api/usage-logs')
     # app.register_blueprint(vendors_bp, url_prefix='/api/vendors')
     # app.register_blueprint(recipes_bp, url_prefix='/api/recipes')
-    # app.register_blueprint(receipts_bp, url_prefix='/api/receipts')
+    app.register_blueprint(receipts_bp, url_prefix='/api/receipts')
     app.register_blueprint(users_bp, url_prefix='/api/users')
 
 
